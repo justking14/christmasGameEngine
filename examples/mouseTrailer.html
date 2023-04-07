@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+     <div id="trailer">
+
+     </div>
+     <style>
+          body{
+               background-color: rgb(20,20,20);
+               height: 100vh;
+               margin: 0px;
+          }
+          #trailer{
+               height: 20px;
+               width: 20px;
+               background-color: white;
+               border-radius: 20px;
+               position: fixed;
+               left: 0px;
+               top: 0px;
+               z-index: 100000;
+               pointer-events: none;
+               opacity: 0;
+               transition: opacity 500ms ease;
+          }
+          body:hover > #trailer{
+               /*when body is being hovered, select the trailer that is not triggered by pointer events*/
+               opacity: 1;
+          }
+     </style>
+     <script>
+          const trailer = document.getElementById("trailer")
+          window.onmousemove = e => {
+               const x = e.clientX - trailer.offsetWidth/2, y = e.clientY - trailer.offsetHeight/2
+               //trailer.style.transform = `translate(${x}px, ${y}px)`;
+
+               const keyframes = {
+                    transform: `translate(${x}px, ${y}px)`
+               }
+               trailer.animate(keyframes, {duration: 800, fill: "forwards"})
+          }
+
+
+     </script>
+</head>
+
+<body>
+     
+</body>
+</html>

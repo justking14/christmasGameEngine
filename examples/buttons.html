@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+
+     <canvas id="canvas1"></canvas>
+     <div class="buttons">
+          <button class = "button button1" data-number="0"></button>
+          <button class="button button2" data-number="1"></button>
+          <button class="button button3" data-number="2"></button>
+
+     </div>
+     <style>
+
+          *{
+               margin: 0;
+               padding: 0;
+               box-sizing: border-box;
+          }
+          body{
+               background: black;
+               overflow: hidden;
+          }
+          .buttons{
+               position: absolute;
+               top: 30%;
+               left: 0;
+               width: 100vw;
+               text-align: center;
+          }
+          #canvas1{
+               background: black;
+          }
+          .button{
+               position: relative;
+               width: 25%;
+               height: 125px;
+               margin: 10px;
+               display: inline-block;
+               border-radius: 50px;
+               border: 5px solid white;
+               background: transparent;
+               transition: 0.5s;
+               font-size: 50px;
+               font-weight: 900;
+               color: white;
+               line-height: 110px;
+               min-width: 300px;
+          }
+          .button::before{
+               content: '';
+               position: absolute;
+               width: 100%;
+               height: 100%;
+               top: 0;
+               left: 0;
+               border-radius: 50px;
+               transition: 0.5s;
+          }
+          button:nth-child(1)::before{
+               content: 'HOME';
+          }
+          button:nth-child(2)::before{
+               content: 'SHOP';
+          }       
+          button:nth-child(3)::before{
+               content: 'ABOUT';
+          }       
+          .button:hover::before{
+               color: yellow;
+               box-shadow: inset 10px 10px 15px orange, inset -10px -10px 15px orange, inset -10px 10px 15px orange, inset 10px -10px 15px orange;
+               background: yellow;
+               text-shadow: 5px 5px 5px orange, -5px -5px 5px orange, -5px 5px 5px orange, 5px -5px 5px orange;
+          }
+          .button:hover{
+               box-shadow:  10px 10px 15px orange,  -10px -10px 15px orange,  -10px 10px 15px orange,  10px -10px 15px orange;
+               background: orange;
+          }
+     </style>
+     <script>
+
+          const canvas = document.getElementById("canvas1")
+          const ctx = canvas.getContext("2d")
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+
+          const buttonElements = document.querySelectorAll(".button")
+          let buttonMeasurements = []
+          function measureButtons(){
+               buttonMeasurements = []
+               buttonElements.forEach(button =>{
+                    buttonMeasurements.push(button.getBoundingClientRect())
+               })
+          }
+          measureButtons()
+          let particlesArray = []
+          class Particle{
+               constructor(x,y,size){
+                    this.x = x;
+                    this.y = y;
+                    this.size = size;
+                    this.weight = Math.random() * 1.5 + 1.5
+                    this.directionX = Math.random() * 1;
+
+               }
+               update(){
+                    this.y += this.weight;
+                    this.x += this.directionX
+                    if(this.size >= 0.3){this.size -= 0.2}
+               }
+               draw(){
+                    ctx.fillRect(this.x, this.y, this.size, this.size)
+                    ctx.fillStyle = "orange"
+                 
+               }
+          }
+
+          let activeButton = -1;
+          buttonElements.forEach(button => button.addEventListener("mouseenter", function(){
+               activeButton = button.dataset.number
+          }))
+               buttonElements.forEach(button => button.addEventListener("mouseleave", function () {
+                         activeButton = -1
+                    }))
+
+          function handleParticles(){
+               for(let i = 0; i < particlesArray.length; i++){
+                    particlesArray[i].update()
+                    particlesArray[i].draw()
+                    if(particlesArray[i].size <= 1){
+                         particlesArray.splice(i, 1)
+                         i--
+                    }
+               }
+          }
+          function createParticle(){
+               if(activeButton > -1){
+                    let size = Math.random() * 40 + 10
+                    let x = Math.random() * (buttonMeasurements[activeButton].width - size * 2) + buttonMeasurements[activeButton].x + size
+                    let y = buttonMeasurements[activeButton].height + 200
+                    particlesArray.push(new Particle(x,y,size))
+               }
+          }
+          function animate(){
+               ctx.clearRect(0,0, canvas.width, canvas.height)
+               createParticle()
+               handleParticles()
+               requestAnimationFrame(animate)
+          }
+          animate()
+          window.addEventListener("resize", function(){
+               canvas.width = window.innerWidth;
+               canvas.height = window.innerHeight
+               measureButtons()
+          })
+     </script>
+</head>
+<body>
+     
+</body>
+</html>

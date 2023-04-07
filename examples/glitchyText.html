@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+     <style>
+          *,*::before,*::after {box-sizing: border-box;}
+          body {background-color: lightblue; width: 500px; height: 200px;}
+     </style>
+     </head>
+     
+     <body>
+          <h1 data-value="My First CSS Example">My First CSS Example</h1>
+     </body>
+     <script>
+
+
+          const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
+          document.querySelector("h1").onmouseover = event => {
+               let iteration = 0;
+               const interval = setInterval(() => {
+                    event.target.innerText = event.target.innerText.split("").map((letter, index) => {
+                         console.log(letter, index)
+                         if (index < iteration) { return event.target.dataset.value[index] }
+                         return letters[Math.floor(Math.random() * 26)]
+                    }).join("")
+
+                    if (iteration >= event.target.dataset.value.length) clearInterval(interval)
+                    iteration += 1 / 3
+               }, 30)
+          }
+     </script>
+     
+     </html>

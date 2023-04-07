@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+     <style>
+          *,
+          *::before,
+          *::after {
+               box-sizing: border-box;
+          }
+
+          body {
+               background-color: lightblue;
+               
+          }
+
+          /* The animation code */
+          @keyframes example {
+               0% {background-color: red; left: 0px;top: 0px;}
+               25% {background-color: yellow;left: 200px;top: 0px;}
+               50% {background-color: blue;left: 200px;top: 200px;}
+               75% {background-color: green;left: 0px;top: 200px;}
+               100% {background-color: red;left: 0px;top: 0px;}
+          }
+          @keyframes earthGrass {
+               0% {background-image: url("/images/grass.png");}
+               30% {background-image: url("/images/stepped.png");}
+               60% {background-image: url("/images/grass.png");}
+          }
+
+
+          
+          .grid-container-battle {
+               position: absolute;
+               display: grid;
+               grid-template-rows: repeat(5, 144px);
+               grid-template-columns: repeat(5, 144px);
+               background-color: whitesmoke;
+               padding: 0px;
+               margin: 0px;
+          }
+          .grid-item-battle {
+               position: relative;
+               padding: 0px;
+               width: 144px;
+               height: 144px;
+
+                  border-color: black;
+               border-style: solid;
+
+               padding: 5px;
+
+               background-color: blue;
+               z-index: 20;
+          
+          }
+
+          .grid-container {
+               display: grid;
+               grid-template-rows: repeat(15, 48px);
+               grid-template-columns: repeat(15, 48px);
+               background-color: whitesmoke;
+               padding: 0px;
+               margin: 0px;
+
+          }
+
+          .grid-item {
+               position: relative;
+               padding: 0px;
+               width: 48px;
+               height: 48px;
+            
+
+               background-image: url("/images/grass.png");
+
+
+               image-rendering: pixelated;
+               image-rendering: -moz-crisp-edges;          /* Firefox */
+               image-rendering: -o-crisp-edges;            /* Opera */
+               image-rendering: -webkit-optimize-contrast; /* Webkit (non-standard naming)*/
+               -ms-interpolation-mode: nearest-neighbor;   /* IE (non-standard property) */
+
+  
+
+               animation-name: earthGrass;
+               animation-duration: 4s;
+               animation-iteration-count: infinite;
+
+               z-index: 15;
+
+          
+          }
+
+          .game-canvas{
+               position: absolute;
+               z-index: 10;
+          }
+
+
+     </style>
+</head>
+
+<body>
+
+     <h1 id="Header">Title</h1>
+     <canvas class="game-canvas" width="768" height="768"></canvas>
+     <div class="grid-container-battle" id="grid-master-battle"></div>
+     <div class="grid-container" id="grid-master"></div>
+
+</body>
+<script>
+
+     for(var i = 0; i < 225; i++){
+          var div = document.createElement("div");
+          div.classList.add('grid-item');
+          div.setAttribute("id", i);
+          document.getElementById("grid-master").appendChild(div);
+     }
+     for (var i = 0; i < 25; i++) {
+          var div = document.createElement("div");
+          div.classList.add('grid-item-battle');
+          div.setAttribute("id", i);
+          if(Math.random() > 0.0){div.style.visibility = "hidden"}
+          document.getElementById("grid-master-battle").appendChild(div);
+     }
+
+
+
+     const addLocalEventListener = (parent, type, callback) => {
+          parent.addEventListener(type, e => { callback(e) })
+     }
+
+     class PathFind {
+          constructor(map) {
+               this.map = map
+
+               for (let tile of this.map) {
+                    tile.setNeighbors(this.map)
+               }
+               let start = this.map[0]
+               start.g = 0;
+               let goal = this.map[Math.floor(Math.random() * this.map.length)];
+
+               this.openList = [start]
+               this.closedList = []
+               this.goalReached = false;
+               while (this.openList.length > 0 && this.goalReached === false) {
+                    let lowestIndex = 0
+                    for (let i = 0; i < this.openList.length; i++) {
+                         if (this.openList[i].f < this.openList[lowestIndex].f) {
+                              lowestIndex = i;
+                         }
+                    }
+
+                    let currentNode = this.openList[lowestIndex]
+
+                    if (currentNode === goal) {
+                         this.goalReached = true
+                         let path = []
+                         let temp = currentNode;
+                         path.push(temp);
+                         while (temp.parent) {
+                              //temp.style.visibility = "hidden"
+                              path.push(temp.parent);
+                              temp = temp.parent;
+                         }
+                         console.log("DONE!");
+                         return path.reverse();
+
+                    } else {
+                         this.openList.splice(lowestIndex, 1)
+                         this.closedList.push(currentNode)
+
+                         console.log(this.openList, this.closedList, currentNode, goal)
+
+
+                         let neighbors = currentNode.neighbors;
+                         for (let neighbor of neighbors) {
+                              if (!this.closedList.includes(neighbor)) {
+                                   let possibleG = currentNode.g + 1;
+
+                                   if (!this.openList.includes(neighbor)) {
+                                        this.openList.push(neighbor);
+                                   } else if (possibleG >= neighbor.g) {
+                                        continue;
+                                   }
+                                   neighbor.g = possibleG;
+                                   neighbor.parent = currentNode;
+                              }
+                         }
+                    }
+               }
+               return []
+          }
+     }
+
+     class GridElement {
+          constructor(item, x, y) {
+               this.item = item;
+               this.x = x;
+               this.y = y;
+               this.neighbors = [] 
+               this.wall = false
+
+               this.checked = false;
+               this.g = 99999;//cost to reach this node 
+               this.h = 99999;//estimated cost to reach goal from this node;
+               this.parent = null;
+          }
+          get style(){
+               return this.item.style
+          }
+          f(goal) {
+               return this.g + (Math.abs(this.x - goal.x) + Math.abs(this.y - goal.y))
+          }
+          setNeighbors(map) {
+               for (let tile of map) {
+                    if (tile.wall === false) {
+                         if (this.x === tile.x && (this.y === tile.y - 1 || this.y === tile.y + 1)) {
+                              this.neighbors.push(tile)
+                         }
+                         if (this.y === tile.y && (this.x === tile.x - 1 || this.x === tile.x + 1)) {
+                              this.neighbors.push(tile)
+                         }
+                    }
+               }
+          }
+
+          obliterateNeighbors(){
+               for (let tile of this.neighbors) {
+                    tile.item.style.visibility = "hidden"
+               }
+          }
+
+     }
+     let mapWidth = 15;
+     let mapHeight = 15;
+     let elements = []
+     let x = 0;
+     let y = 0;
+     let index = 0;
+     document.querySelectorAll(".grid-item").forEach((userItem) => {
+          //userItem.innerHTML = x + " " + y//`${x,y}`
+          userItem.style.index = index
+
+          elements.push(new GridElement(userItem, x, y))
+
+          addLocalEventListener(userItem, "mouseover", function(){
+               userItem.style.animationName = "example"
+               console.log(userItem.style.index, index)
+               let currentElement = elements[userItem.style.index]
+               document.getElementById("Header").innerHTML =currentElement.x + " " + currentElement.y//userItem.innerHTML
+          })
+     
+          index+=1;
+          x += 1
+          if(x >= mapWidth){
+               x = 0;
+               y+=1
+
+          }
+     });
+
+     for (let tile of elements) {
+          if (Math.random() > 0.65) { 
+               tile.style.opacity = 0.25 
+               tile.wall = true
+          }
+     }
+          for (let tile of elements) {
+
+          tile.setNeighbors(elements)
+     }
+
+     elements[25].obliterateNeighbors()
+     //elements[5].item.style.visibility = "hidden"
+
+     this.canvas = document.querySelector("canvas");
+     this.ctx = this.canvas.getContext("2d")
+
+     const drawRect = (ctx, x, y, w, h, options) => {
+          Object.assign(ctx, options)
+          ctx.beginPath();
+          ctx.rect(x, y, w, h);
+          ctx.closePath();
+          ctx.fill();
+     }
+
+     drawRect(this.ctx, 0, 0, 768, 768, {fillStyle: "rgba(1,1,1,0.15)" })
+     drawRect(this.ctx, 48 * 5, 48 * 5, 48, 48, { fillStyle: "rgba(0.5,1,0,0.9)" })
+
+     let path = new PathFind(elements)
+     let pathI = 0;
+     setInterval(function(){
+          path[0].style.visibility = "hidden"
+          path.shift()
+
+     }, 100);
+     
+
+</script>
+
+</html>

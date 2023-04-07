@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+     <canvas id="c"></canvas>
+
+     <script src="color.js"></script>
+     <script src="vector.js"></script>
+     <script src="Dot.js"></script>
+     <script src="Stick.js"></script>
+     <script src="Entity.js"></script>
+     <script src="NewEntity.js"></script>
+     <script src="entityGenerators.js"></script>
+
+     <script src="NumberEntity.js"></script>
+     <script src="LetterEntity.js"></script>
+
+
+     <script>
+          let canvas = document.getElementById("c");
+          let ctx = canvas.getContext("2d");
+          let CANVAS_WIDTH = 910// window.innerWidth - 5;
+          let CANVAS_HEIGHT = 660 //window.innerHeight - 205; * 1.33333
+          canvas.width = CANVAS_WIDTH;
+          canvas.height = CANVAS_HEIGHT;
+
+          let apocalypse = false 
+          let scoreGoal = 10000
+          let speed = 1;
+          let gravityIncrement = 0;
+          let meterTimer = 1500//meter moves ever 2 seconds 
+          let clickMade = false;
+
+          var audio = new Audio('explosion.wav');
+          let border = makeBorder(5,5,CANVAS_WIDTH - 5,CANVAS_HEIGHT - 5,50)
+          let human = new NewEntity({
+          dots:{
+          "head"         : { x: 25, y: 0, radius: 7, locked: false, type: "c" },
+          "bodyTop"      : { x: 10, y: 20, type: "c" },
+          "bodyBottom"   : { x: 10, y: 60 },
+          "leftArm"      : { x: 25, y: 45, type: "c" },
+          "lowerLeftArm" : { x: 35, y: 20 },
+          "rightArm"     : { x: 35, y: 45, type: "c" },
+          "lowerRightArm": { x: 45, y: 20 },
+          "leftLeg"      : { x: 0, y: 85,  type: "a" },
+          "lowerLeftLeg" : { x: 0, y: 120, type: "a" },
+          "rightLeg"     : { x: 0, y: 85,  type: "b" },
+          "lowerRightLeg": { x: 0, y: 120, type: "b" },
+          },
+          sticks: [["head", "bodyTop"], ["bodyTop", "bodyBottom"], ["bodyTop", "leftArm"], 
+          ["bodyTop", "rightArm"], ["bodyBottom", "leftLeg"], ["bodyBottom", "rightLeg"],
+          ["leftLeg", "lowerLeftLeg"], ["rightLeg", "lowerRightLeg"],["leftArm", "lowerLeftArm"],["rightArm", "lowerRightArm"]],
+          movement:{x:115,y:475}
+          }     
+          ,"red")
+
+          let ground = new NewEntity({}, "#554124")
+          for (let i = 0; i < 500; i++) {
+               ground.addDot("step", 5 + (50 * i), (CANVAS_HEIGHT - 5) - (25 * i), "none", 5)
+               if (i > 0) {
+                    ground.addStickIndex(i - 1, i)
+               }
+          }
+          for (let st of ground.sticks) { st.lineWidth = 3; }
+
+          ground.resetPositions()
+
+
+          let meter = new NewEntity({
+               dots: {
+                    "1": { x: 0, y: 0 },
+                    "2": { x: 50, y: 0 },
+                    "3": { x: 100, y: 0 },
+                    "4": { x: 150, y: 0 },
+                    "5": { x: 200, y: 0 },
+                    "6": { x: 250, y: 0 },
+                    "7": { x: 300, y: 0 },
+                    "8": { x: 350, y: 0 },
+                    "9": { x: 400, y: 0 },
+
+                    "1a": { x: 0, y: 100 },
+                    "2a": { x: 50, y: 100 },
+                    "3a": { x: 100, y: 100 },
+                    "4a": { x: 150, y: 100 },
+                    "5a": { x: 200, y: 100 },
+                    "6a": { x: 250, y: 100 },
+                    "7a": { x: 300, y: 100 },
+                    "8a": { x: 350, y: 100 },
+                    "9a": { x: 400, y: 100 },
+
+                    "1c": { x: 0, y: 50 },
+                    "9c": { x: 400, y: 50 },
+               },
+               sticks: [
+                    ["1", "2"], ["2", "3"], ["3", "4"], ["4", "5"], ["5", "6"], ["5", "6"], ["6", "7"], ["7", "8"], ["8", "9"],
+                    ["1a", "2a"], ["2a", "3a"], ["3a", "4a"], ["4a", "5a"], ["5a", "6a"], ["5a", "6a"], ["6a", "7a"], ["7a", "8a"], ["8a", "9a"],
+                    ["1", "1c"], ["1c", "1a"], ["9", "9c"], ["9c", "9a"], 
+               ],
+
+               movement: { x: 455, y: CANVAS_HEIGHT - 150 }
+          }, "blue")
+          let meterBar = new NewEntity({
+          dots: {
+          "1": { x: 0, y: 0 },
+          "2": { x: 0, y: 50 },
+          "3": { x: 0, y: 100 },
+          },
+          sticks: [["1", "2"], ["2", "3"]],
+          movement: { x: 455, y: CANVAS_HEIGHT - 150 }
+          }, "black")
+          for (let st of meter.sticks) {st.lineWidth = 3;}
+          for (let st of meterBar.sticks) {st.lineWidth = 5;}
+
+          let mountains = new NewEntity({
+          dots: {
+          "1": { x: 0, y: 455 },
+          "2": { x: 90, y: 100 },
+          "3": { x: 250, y: 430 },
+
+          "6": { x: 355, y: 0 },
+          "4": { x: 500, y: 305 },
+
+          "7": { x: 600, y: -95 },
+          "8": { x: 750, y: 180 },
+
+          },
+          sticks: [["1", "2"], ["2", "3"], ["3", "6"], ["6", "4"], ["7", "4"], ["7", "8"], ],
+          movement: { x: 5, y: 100 }
+          }, "blue")
+          let mountainTops = new NewEntity({
+          dots: {
+          "2": { x: 90, y: 100 },
+          "1": { x: 63, y: 206.5 },
+          "3": { x: 138, y: 199 },
+
+          "3b": { x: 90, y: 250 },
+          "4b": { x: 100, y: 220 },
+          "5b": { x: 125, y: 250 },
+
+          "6": { x: 355, y: 0 },
+          "7": { x: 323.5, y: 129 },
+          "8": { x: 398.5, y: 91.5 },
+
+          "9": { x: 375, y: 160 },
+          "10": { x: 350, y: 200 },
+
+          "11": { x: 600, y: -95 },
+          "12": { x: 570, y: 25 },
+          "13": { x: 645, y: -12.5 },
+          "14": { x: 620, y: 50 },
+
+
+          },
+          sticks: [["1", "2"], ["2", "3"], ["1", "3b"], ["5b", "3"],["3b","4b"],["4b","5b"],
+          ["6", "7"], ["9", "8"], ["6", "8"], ["9", "10"], ["7", "10"],
+          ["11", "12"], ["12", "14"], ["14", "13"], ["11", "13"]],
+          movement: { x: 5, y: 100 }
+          }, "white")
+          let clouds = new NewEntity({
+          dots: {
+          "1": { x: 10, y: 25 },
+          "2": { x: 20, y: 50 },
+          "3": { x: 70, y: 50 },
+          "4": { x: 80, y: 25 },
+          "5": { x: 70, y: 0 },
+          "6": { x: 20, y: 0 },
+          "7": { x: 45, y: 0 },
+          "8": { x: 45, y: 50 },
+
+          },
+          sticks: [["1", "2"], ["2", "8"], ["8", "3"], ["3", "4"], 
+          ["4", "5"], ["5", "7"], ["7", "6"], ["6", "1"],
+          ],
+          movement: { x: 150, y: 100 }
+          }, "white")
+          let clouds2 = new NewEntity({
+          dots: {
+          "1": { x: 0, y: 25 },
+          "2": { x: 20, y: 50 },
+          "3": { x: 45, y: 50 },
+          "4": { x: 70, y: 25 },
+          "5": { x: 45, y: 0 },
+          "6": { x: 20, y: 0 },
+          },
+          sticks: [["1", "2"], ["2", "3"], ["3", "4"], ["4", "5"], ["5", "6"], ["5", "6"], ["1", "6"]],
+          movement: { x: 450, y: 50 }
+          }, "white")
+
+          let boulder = createBoulder(215, 435, 100);//centerX, centerY, radius
+          let sun = createSun(820,0,50)
+
+          let textsArray       = [new LetterEntity(20, 17, "white"), new LetterEntity(17, 20, "white"), new LetterEntity(20, 23, "white"), new LetterEntity(23, 20, "white"), new LetterEntity(20, 20, "black")]
+          let clickTextArray   = [new LetterEntity(495, CANVAS_HEIGHT - 117, "white"), new LetterEntity(495, CANVAS_HEIGHT - 123, "white"), new LetterEntity(492, CANVAS_HEIGHT - 120, "white"), new LetterEntity(498, CANVAS_HEIGHT - 120, "white"), new LetterEntity(495, CANVAS_HEIGHT - 120, "black")]
+          let speedTextShadows = [new NumberEntity(189, 20, "white"), new NumberEntity(192, 23, "white"), new NumberEntity(192, 17, "white"), new NumberEntity(195, 20, "white"), new NumberEntity(192, 20, "black")]
+          let gravityArray = [ mountains, clouds, clouds2, ground, mountainTops, sun, meter, meterBar, ...clickTextArray, ...textsArray,...speedTextShadows]
+
+          function moveBar(){
+               if(gravityIncrement === 0 && apocalypse === false){
+                    clickMade = false;
+                    meterBar.moveElements(50, 0)
+                    meterBar.counter++
+                    if (meterBar.counter > 8) {
+                         meterBar.counter = 0
+                         meterBar.moveElements(-450, 0)
+                    }
+               }
+               setTimeout(() => {moveBar()},meterTimer/(speed * 0.75))
+          }
+          moveBar()
+
+          function step() {
+               if(apocalypse === false){
+                    clouds.animate({ type: "flicker", amount: 25, frequency: 0.1 })
+                    clouds2.animate({ type: "flicker", amount: 25, frequency: 0.125})
+                    sun.moveElements(0,0.35)
+
+                    let stepTaken2 = human.animate({ type: "movement", amount: 15, })
+
+                    ground.animate({type: "down"})
+                    boulder.animate({ type: "pulse" })
+
+                    setInterval(()=>{
+                         if (gravityIncrement !== 0) {
+                              stepCount++
+                              if (stepCount > 200) {
+                                   stepCount = 0;
+                                   colorIndex += 1
+                              }
+                              bgColor.setColorFromArray(colorAdjuster(sunrise, stepCount, colorIndex, 200))
+                         }
+                    },10000)
+               
+                    setTimeout(() => {
+                         let Xmove = 0.9 /2
+                         let Ymove = -0.45 /2
+                         boulder.moveElements(Xmove, Ymove)
+                         human.moveElements(Xmove,Ymove)
+
+                         step()
+                         if(gravityIncrement === 0){
+                              stepCount++
+                              if(stepCount > 150){
+                                   stepCount = 0;
+                                   colorIndex+=1
+                              }
+                              bgColor.setColorFromArray(colorAdjuster(sunset, stepCount, colorIndex, 150))
+                         }
+
+                         time = 1000/(speed * 2)
+
+                         if(human.dots[0].pos.y < 250){
+                              if(apocalypse === false){
+                                   apocalypse = true;
+                                   startEndGame()
+                              }
+                         }
+                    }, time);
+               }
+          }
+
+          let time = 250
+          let inc = 0;
+          step()
+          function beatHit(speedIncrement, color){
+               speed += speedIncrement
+               if(speed < 1){speed = 1}
+               meter.setColor(color)
+               clearInterval(meter.colorInterval)
+               meter.colorInterval = setTimeout(() => {meter.setColor("blue")}, 2500)
+          }
+          document.addEventListener("click", e => { 
+               if(clickMade === false){
+                    clickMade = true; 
+                    if(meterBar.counter === 4){
+                         beatHit(2, "green")
+                    }else if(meterBar.counter === 3 || meterBar.counter === 5){
+                         beatHit(1, "#FBE106")
+                    }else{
+                         beatHit(-2, "red")
+                    }
+               }
+          })
+
+          let bgColor = new colorRGB(135, 206, 235)//colorRGB(135,206,235)
+          let stepCount = 0;
+          let colorIndex = 0;
+          let sunset = [[135, 206, 235], [0, 191, 255], [0, 191, 255], [0, 191, 255], [252, 156, 84], [253, 94, 83], [75, 61, 96], [21, 40, 82], [8, 24, 58]]
+          let sunrise = [...sunset].reverse()
+          function colorAdjuster(colorArray, step, colorIndex, colorSteps){
+               let currentColor = []
+               let factor = step/colorSteps
+               for (var i = 0; i < 3; i++) {
+                    currentColor[i] = colorArray[colorIndex][i] + (factor * (colorArray[colorIndex+1][i] - colorArray[colorIndex][i]));
+               }
+               return currentColor
+          }
+
+          function animate() {
+               ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+               ctx.fillStyle = bgColor.returnColor()
+               ctx.fillRect(5, 5, CANVAS_WIDTH - 10, CANVAS_HEIGHT)
+
+               if(apocalypse === true){
+                    boulder.moveElements(-0.9,0.45)
+                    boulder.animate({ type: "pulseBack" })
+               }
+               mountains.update(ctx)
+               mountainTops.update(ctx)
+               sun.update(ctx)
+
+               if(gravityIncrement < 1){
+                    ctx.fillStyle = bgColor.returnColor()
+                    ctx.beginPath();
+                    ctx.moveTo(-5, CANVAS_HEIGHT);
+                    ctx.lineTo(CANVAS_WIDTH - 5, CANVAS_HEIGHT );
+                    ctx.lineTo(CANVAS_WIDTH - 5, 202);
+                    ctx.fill();
+               }
+
+               ctx.fillStyle = "white"
+               ctx.fillRect(0, CANVAS_HEIGHT - 5, CANVAS_WIDTH, 200)
+
+               ctx.fillStyle = "white"
+               ctx.fillRect(0, 0, CANVAS_WIDTH, 5)
+
+               clouds.update(ctx)
+               clouds2.update(ctx)
+               boulder.update(ctx)
+               ground.update(ctx)
+
+               ctx.fillStyle = "white"
+               ctx.fillRect(0, 0, 5, CANVAS_HEIGHT)
+
+               human.update(ctx);
+
+               ctx.fillStyle = "white"
+               ctx.fillRect(0, CANVAS_HEIGHT - 5, CANVAS_WIDTH, 200)
+
+               ctx.fillStyle = "white"
+               ctx.fillRect(0, 0, CANVAS_WIDTH, 5)
+
+               for(bord of border){bord.update(ctx)}
+
+               if (meterBar.counter === 4) {
+                    for (let ent of clickTextArray) {
+                         ent.render(ctx, "CLICK NOW")
+                    }
+               }
+
+               for (let ent of textsArray) {ent.render(ctx, "SPEED: ")}
+               for (let ent of speedTextShadows) {ent.render(ctx, speed)}
+
+               meter.update(ctx)
+               meterBar.update(ctx)
+
+               ctx.fillStyle = "white"
+               ctx.fillRect(CANVAS_WIDTH + 5,0,3000,3000)//458
+               ctx.font = "40px Arial";
+               requestAnimationFrame(animate);
+          }
+          animate();
+
+          function startEndGame(){
+               setTimeout(() => {
+                    audio.play()
+                    human.turnOnGravity()
+                    human.fuckUpShit()
+
+                    for (var i = 0; i < human.dots.length; i++) {
+                         human.dots[i].vel.y = -1 * ((Math.random() * 1600) + 500)
+                    }
+               }, 250)
+
+               time = 100000
+               setTimeout(() => {
+                    gravityIncrement = 1;
+                    colorIndex = 0;
+                    stepCount = 0;
+                    for (let ent of gravityArray) { ent.turnOnGravity() }
+               }, 5000)
+               setTimeout(() => {
+                    apocalypse = false
+                    gravityIncrement = 2;
+                    for (let ent of gravityArray) { ent.turnOnGravity2() }
+                    boulder.turnOnGravity2()
+                    human.turnOnGravity2()
+               }, 10000)
+               setTimeout(() => {
+                    gravityIncrement = 3
+                    speed = 1
+                    for (let ent of gravityArray) { ent.turnOnGravity3() }
+                    boulder.turnOnGravity3()
+                    human.turnOnGravity3()
+               }, 15000)
+
+               setTimeout(() => { location.reload(); }, 21000)
+          }
+
+          function createSun(centerX2, centerY2, radius) {
+          let sun = new NewEntity({}, "yellow")
+          let vertices2 = []
+          for (let i = 0; i < 14; i++) {
+          const angle = (i / 14) * 2 * Math.PI;
+          const x = centerX2 + radius * Math.cos(angle);
+          const y = centerY2 + radius * Math.sin(angle);
+          vertices2.push({ x, y });
+          }
+          for (let i = 0; i < 14; i++) {
+          sun.addDot("sun", vertices2[i].x, vertices2[i].y, "none", 7)
+          if (i > 0 && i !== 14) {
+          sun.addStickIndex(i - 1, i)
+          }
+          }
+          sun.addStickIndex(0, 13)
+          sun.resetPositions()
+          return sun;
+          }
+
+          function createBoulder(centerX, centerY, radius){
+     let boulder = new NewEntity({}, "brown")
+     // Calculate the coordinates of the vertices of the polygon
+     const vertices = [];
+     for (let i = 0; i < 14; i++) {
+     const angle = (i / 14) * 2 * Math.PI;
+     const x = centerX + radius * Math.cos(angle);
+     const y = centerY + radius * Math.sin(angle);
+     vertices.push({ x, y });
+     }
+
+     radius = 50
+     for (let i = 0; i < 14; i++) {
+     const angle = (i / 14) * 2 * Math.PI;
+     const x = centerX + radius * Math.cos(angle);
+     const y = centerY + radius * Math.sin(angle);
+     vertices.push({ x, y });
+     }
+
+     for (let i = 0; i < 28; i++) {
+     boulder.addDot("boulder", vertices[i].x, vertices[i].y, "none", 7)
+     if (i > 0 && i !== 14) {
+     boulder.addStickIndex(i - 1, i)
+     }
+     if (i >= 14) {
+     //boulder.addStickIndex(i - 14, i)
+     }
+     }
+
+     boulder.addDot("boulder", centerX, centerY, "none", 7)
+     for (let i = 13; i < 27; i++) {
+     //boulder.addStickIndex(28, i)
+     }
+
+     boulder.addStickIndex(27, 14)
+     boulder.addStickIndex(13, 0)
+     boulder.addStickIndex(0, 14)
+     boulder.addStickIndex(0, 28)
+
+     boulder.resetPositions()
+
+     return boulder;
+     }
+     </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

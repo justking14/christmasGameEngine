@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+     <meta charset="utf-8" />
+     <script type="text/javascript">
+          function draw() {
+               let downloadButton = document.getElementById("download");
+               downloadButton.addEventListener("click", function () {
+                    let dataURL = canvas.toDataURL("image/png");
+                    let win = window.open();
+                    win.document.write('<iframe src="' + dataURL + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+               });
+               let reloadButton = document.getElementById("reload");
+               reloadButton.addEventListener("click", function () {
+                    window.location.reload()
+               });
+               let mountainData = {
+                    width: 500,
+                    height: 500,
+                    widthVariation: 50,
+                    heightVariation: 50,
+                    centerVariation: 100
+               }
+               let canvas = document.createElement("canvas");
+               canvas.width = mountainData.width;
+               canvas.height = mountainData.height;
+               canvas.style.zIndex = 8;
+               canvas.style.position = "absolute";
+               canvas.style.border = "1px solid";
+               canvas.style.backgroundColor = "#57cee4"
+               document.body.appendChild(canvas);
+               let ctx = canvas.getContext("2d");
+               ctx.fillStyle = 'rgba(0, 0, 200, 0.5)';
+               let leftMountainBaseX = randomIntInRange(0, mountainData.widthVariation);
+               let rightMountainBaseX = mountainData.width - randomIntInRange(0, mountainData.widthVariation);
+               let mountainTopY = randomIntInRange(0, mountainData.heightVariation);
+               let mountainTopX = (mountainData.width - mountainData.centerVariation) / 2 + randomIntInRange(0, mountainData.centerVariation);
+               let leftSnow = randomPointOnSegment(leftMountainBaseX, mountainData.height, mountainTopX, mountainTopY, 60, 80);
+               let rightSnow = randomPointOnSegment(rightMountainBaseX, mountainData.height, mountainTopX, mountainTopY, 60, 80);
+               let midSnow = {
+                    x: mountainTopX,
+                    y: (leftSnow.y + rightSnow.y) / 2
+               }
+               let leftSnowPoints = [];
+               let rightSnowPoints = [];
+               for (let i = 1; i <= 2; i++) {
+                    leftSnowPoints.push(randomPointOnSegment(leftSnow.x, leftSnow.y, midSnow.x, midSnow.y, 100 / 3 * i, 100 / 3 * i));
+                    leftSnowPoints[i - 1].y += randomIntInRange(10, 20) * (1 - 2 * (i % 2))
+                    rightSnowPoints.push(randomPointOnSegment(midSnow.x, midSnow.y, rightSnow.x, rightSnow.y, 100 / 3 * i, 100 / 3 * i));
+                    rightSnowPoints[i - 1].y += randomIntInRange(10, 20) * (-1 + 2 * (i % 2))
+               }
+               ctx.fillStyle = "rgb(236, 239, 244)";
+               ctx.beginPath();
+               ctx.moveTo(leftSnow.x, leftSnow.y);
+               leftSnowPoints.forEach(function (point) {
+                    ctx.lineTo(point.x, point.y);
+               })
+               ctx.lineTo(midSnow.x, midSnow.y);
+               ctx.lineTo(mountainTopX, mountainTopY)
+               ctx.fill();
+               //
+               ctx.fillStyle = "rgb(130, 176, 209)";
+               ctx.beginPath();
+               ctx.moveTo(midSnow.x, midSnow.y);
+               rightSnowPoints.forEach(function (point) {
+                    ctx.lineTo(point.x, point.y);
+               })
+               ctx.lineTo(rightSnow.x, rightSnow.y);
+               ctx.lineTo(mountainTopX, mountainTopY)
+               ctx.fill();
+               //
+               ctx.fillStyle = "rgb(73, 121, 141)";
+               ctx.beginPath();
+               ctx.moveTo(leftMountainBaseX, mountainData.height);
+               ctx.lineTo(leftSnow.x, leftSnow.y);
+               leftSnowPoints.forEach(function (point) {
+                    ctx.lineTo(point.x, point.y);
+               })
+               ctx.lineTo(midSnow.x, midSnow.y);
+               ctx.lineTo(midSnow.x, mountainData.height)
+               ctx.fill();
+               ctx.fillStyle = "rgb(62, 105, 121)";
+               ctx.beginPath();
+               ctx.moveTo(midSnow.x, midSnow.y);
+               rightSnowPoints.forEach(function (point) {
+                    ctx.lineTo(point.x, point.y);
+               })
+               ctx.lineTo(rightSnow.x, rightSnow.y);
+               ctx.lineTo(rightMountainBaseX, mountainData.height);
+               ctx.lineTo(mountainTopX, mountainData.height);
+               ctx.fill();
+
+                              
+               ctx.fillStyle = "rgb(60, 145, 57)";
+               ctx.beginPath();
+               ctx.ellipse( 5, canvas.height - 58, 1000, 50, Math.PI / 4, 0, 2 * Math.PI);
+               ctx.fill();
+
+               ctx.fillStyle = "rgb(69, 168, 66)";
+               ctx.beginPath();
+               ctx.ellipse(44, canvas.height - 60, 1000, 50, Math.PI / 4, 0, 2 * Math.PI);
+               ctx.fill();
+
+
+               class Vector{
+                    constructor(x,y){
+                         this.x = x;
+                         this.y = y;
+                    }
+               }
+
+               class Dot{
+                    constructor(x,y){
+                         this.pos = new Vector(x, y)
+                    }
+                    draw(ctx){
+                         ctx.beginPath();
+                         ctx.arc(this.pos.x, this.pos.y, 10, 0, 2 * Math.PI);
+                         ctx.fill();
+                    }
+               }
+
+               class Bone{
+                    constructor(x,y, x2,y2, parent){
+                         this.start = new Vector(x,y)
+                         this.start2 = new Vector(x,y)
+                         this.end = new Vector(x2,y2)
+                         this.end2 = new Vector(x2, y2)
+                         this.children = []
+
+                         parent && parent.children.push(this)
+                         this.parent = parent
+                    }
+                    draw(ctx){
+                         ctx.strokeStyle = "pink"
+                         ctx.beginPath();
+                         if(this.parent){
+                              this.start2 = new Vector(this.start.x + this.parent.start2.x, this.start.y + this.parent.start2.y)
+                                                            
+                              this.end2 = new Vector(this.end.x + this.parent.start2.x, this.end.y + this.parent.start2.y)
+
+                         }
+                         ctx.moveTo(this.start2.x, this.start2.y);
+                         ctx.lineTo(this.end2.x, this.end2.y);
+                    
+                         ctx.lineWidth = 10
+                         ctx.stroke();
+
+                         for(var i = 0; i < this.children.length; i++){
+                              this.children[i].draw(ctx)
+                         }
+                    }
+               }
+          
+               let core = new Bone(200,100,200,50)
+               let leftLeg = new Bone(0,0,25,50, core)
+               let leftLeg2 = new Bone(0, 0, -100, 50, leftLeg)
+
+               let rightLeg = new Bone(0, 0, -25, 50, core)
+               let rightLeg2 = new Bone(0, 0, 100, 50, rightLeg)
+
+
+               console.log(core)
+
+               let newDot = new Dot(200, 200)
+               let newDot2 = new Dot(400, 200)
+               let sticks = [[newDot, newDot2]]
+
+                function animate() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height)
+                    core.draw(ctx)
+                    newDot.draw(ctx)
+                    newDot2.draw(ctx)
+                    
+                    newDot.pos.y += 1
+
+                     for(var i = 0; i < sticks.length; i++){
+                         ctx.beginPath();
+                          ctx.strokeStyle = this.color;
+                          ctx.moveTo(sticks[i][0].pos.x, sticks[i][0].pos.y);
+                          ctx.lineTo(sticks[i][1].pos.x, sticks[i][1].pos.y);
+                          ctx.stroke();
+                          ctx.closePath();
+                     }
+
+                    requestAnimationFrame(animate)
+               }
+               animate()
+
+          }
+          function randomIntInRange(from, to) {
+               return from + Math.floor(Math.random() * (to + 1 - from));
+          }
+          function randomPointOnSegment(x1, y1, x2, y2, min, max) {
+               let n = randomIntInRange(min, max) / 100;
+               let a = (y2 - y1) / (x2 - x1);
+               let x = x1 + (x2 - x1) * n;
+               let y = a * (x - x1) + y1;
+               return {
+                    x: x,
+                    y: y
+               }
+          }
+     </script>
+     <style type="text/css">
+          canvas {
+               border: 1px solid black;
+          }
+     </style>
+</head>
+
+<body onload="draw();">
+     <div><button type="button" id="download">Download</button> <button type="button" id="reload">Reload</button> </div>
+</body>
+
+</html>

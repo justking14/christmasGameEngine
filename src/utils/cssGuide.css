@@ -1,0 +1,42 @@
+p {
+     color: red;
+     font-family: verdana;
+     font-size: 20px;
+     /*p is a selector, color is a property, red is a property value */
+}
+
+/* selectors: find/select the html element that you want to style */
+p {color: blue;} /*element selector: selects all paragraphs*/
+#para1 {color: red} /*id selector: selects elements with the unique matching id*/
+.center {color: purple;} /*class selector: selects elements with specific class attribute. Ex: class="center"*/
+p.center {color: aliceblue} /*selects all paragraphs belonging to center class*/
+* {color: indianred}/*universal selector: selects all html elements*/
+
+h1,h2,p {color: aqua;}/*grouping selector: selects multiple elements at once*/
+body>p {color: #ff6347;}/*child combinator: selects element that has a parent of some type*/
+.parent:hover>.child {color: bisque;}/*selects child when parent is hovered on */
+
+/*positioning
+     static: default.  not affected by top/down/left/right
+     relative: positioned relative to normal position.  affected by top etc.
+          left: 30px; extends to right end of the screen
+     fixed: positioned relative to viewport even if scrolled.  top etc. are used to assign pos and size
+     absolute: positioned relative to nearest relative parent or document body.  
+          can overlap elements
+     sticky: positioned based on scroll position 
+          pos is relative until scrolled past screen 
+     top/bottom/left/right: set the margin edge for a position block  
+
+*/
+
+/*repeat(repeat-count, track)
+     repeat-count: # of times to repeat
+     track: size of track
+
+colors 
+<h1 style="background-color:rgb(255, 99, 71);">...</h1>
+<h1 style="background-color:#ff6347;">...</h1>
+<h1 style="background-color:hsl(9, 100%, 64%);">...</h1>
+<h1 style="background-color:rgba(255, 99, 71, 0.5);">...</h1>
+<h1 style="background-color:hsla(9, 100%, 64%, 0.5);">...</h1>
+*/

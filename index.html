@@ -1,0 +1,122 @@
+<!DOCTYPE html>>
+<html lang="en">
+     <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Game!</title>
+
+          <link href="/styles/menu.css" type="text/css" rel="stylesheet">
+          <script src="/KeyPressListener.js"></script>
+
+
+                         
+          <script src="./src/textBox.js"></script>
+          <script src = "./src/main.js" type = "module"></script>
+
+          <style>
+               * {
+                    box-sizing:border-box;
+               }
+
+               body {
+                    background-color: rgb(20,20,20);
+                    background: #333;
+                    padding: 0;
+                    margin: 0;
+                    overflow: hidden;
+                    font-family: 'Ribeye', cursive;
+               }
+               .game-container {
+                    position: absolute;
+
+                    background: #9ae2ff;
+
+                    width: 337px;
+                    height: 208px;
+                    margin: 0 auto;
+                    outline: 1px solid #fff;
+
+                    transform-origin: left top;
+                    transform: scale(3);
+                    top: 0;
+                    left: 0;
+               }
+               .game-container canvas {
+                    position: fixed;
+                    image-rendering: pixelated;
+               }
+
+               .text span {
+                    opacity: 0;
+
+               }
+               .text span.revealed {
+               opacity: 1;
+               display: inline-block;
+               word-spacing: 1.0em;
+               }
+               .text span.green {
+               color: #27ae60;
+                  animation: scaling 0.55s infinite;
+
+               }
+               @keyframes vertical-shaking {
+                    0% { transform: translateY(0) }
+                    25% { transform: translateY(0.25px) }
+                    50% { transform: translateY(-0.5px) }
+                    75% { transform: translateY(0.25px) }
+                    100% { transform: translateY(0) }
+               }
+
+               @keyframes scaling {
+                    0% { transform: scale(1.025) }
+                    25% { transform: scale(1.05) }
+                    50% { transform: scale(1.0) }
+                    75% { transform: scale(0.95) }
+                    100% { transform: scale(1.0) }
+               }
+               
+               .text span.red {
+               color: #ff0000;
+               }
+
+
+               .text {
+                    font-size: 1.5vw;
+                    word-spacing: 0.1em;
+                    margin: 0 auto;
+                    background: #fff;
+                    padding: 0.5em;
+                    border-bottom: 0.1vw solid #595959;
+                    position:relative;
+                    line-height: 0.8em;
+                    width: 100%;
+                    top: 0px;
+                       font-family: 'Sora', monospace;
+
+
+               }
+          </style>
+     
+     </head>
+     <body>
+          <div class="game-container">
+               <canvas class="game-canvas" width="337" height="208"></canvas>
+                    
+               <div class="text">
+                    <!-- text gets injected here -->     
+               </div>
+          </div>
+          <!-- text gets injected here -->
+     
+          <div id="menu">
+               <div id="menu-items">
+                    <a href="/" class="menu-item">Home</a>
+                    <a href="/" class="menu-item">Shop</a>
+                    <a href="/" class="menu-item">About</a>
+                    <a href="/" class="menu-item">Contact Us</a>
+
+               </div>
+          </div>
+     </body>
+</html>

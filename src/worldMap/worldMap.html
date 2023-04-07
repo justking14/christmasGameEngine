@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+     <style>
+          *, *::before, *::after {
+               box-sizing: border-box;
+          }
+          body {
+               background-color: lightblue;
+          }
+          @keyframes earthGrass {
+               0% {background-image: url("/images/grassE.png");}
+               30% {background-image: url("/images/stepped.png");}
+               60% {background-image: url("/images/grassE.png");}
+          }
+
+          .container{
+               display: grid;
+               background-color: whitesmoke;
+               padding: 0px;
+               margin: 0px;
+          }
+          .battle-container {
+               position: absolute;
+               grid-template-rows: repeat(5, 144px);
+               grid-template-columns: repeat(6, 144px);
+                              
+
+
+          }
+          .map-container {
+               grid-template-rows: repeat(15, 48px);
+               grid-template-columns: repeat(18, 48px);
+          }
+
+
+          .battle-tile {
+               position: relative;
+               padding: 0px;
+               width: 144px;
+               height: 144px;
+
+
+               background-color: blue;
+               z-index: 20;
+          }
+          .battle-tile:hover{
+               border: 5px dashed black;
+          }
+          .map-tile {
+               position: relative;
+               padding: 0px;
+               width: 48px;
+               height: 48px;
+
+               background-color: brown;
+
+               /*background-image: url("/images/grassE.png");
+               animation-name: earthGrass;*/
+               animation-duration: 4s;
+               animation-iteration-count: infinite;
+
+               z-index: 15;
+          }
+          .map-tile:hover{
+               border: 5px dashed black;
+          }
+
+          .rightScreen{
+               background-color: saddlebrown;
+               border: 5px solid black;
+               position: absolute;
+               width: 225px;
+               height: 720px;
+               left: 864px;
+          }
+
+          .game-canvas {
+               position: absolute;
+               z-index: 20;
+          }
+     </style>
+</head>
+
+<body>
+
+     <h1 id="Header">Title</h1>
+     <canvas class="game-canvas" width="864" height="720"></canvas>
+     <div>
+          <div class="battle-container container" id="battle-master">
+               <div class="rightScreen">
+                    <h1>Selected Tile:</h1>
+                    <h1 id="tileCoordinates">Who Am I?</h1>
+                    <h1>Tile Attribute:</h1>
+                    <h1 id="tileAttributes">Who Am I?</h1>
+
+                    <h1 id="stateHeader">Tile State:</h1>
+                    <h1 id="stateText">Growing</h1>
+
+                    <h1 id="timerHeader">Time Til Harvest:</h1>
+                    <h1 id="timerText">Who Am I?</h1>
+               </div>
+          </div>
+          <div class="map-container container" id="map-master"></div>
+     </div>
+     <script src="/src/worldMap/canvas.js"></script>
+     <script src="/src/worldMap/eventListener.js"></script>
+     <script src="/src/worldMap/pathfind.js"></script>
+     <script src="/src/worldMap/tileElement.js"></script>
+
+
+</body>
+<script>
+
+     function createDiv(classType, idType, parentID){
+          var div = document.createElement("div");
+          div.classList.add(classType);
+          div.setAttribute("id", idType);
+          document.getElementById(parentID).appendChild(div);
+     }
+
+     for(var i = 0; i < 270; i++){createDiv("map-tile", i, "map-master")}
+     for (var i = 0; i < 30; i++) {createDiv("battle-tile", i, "battle-master")}
+
+      class Player {
+               constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.goal;
+                    this.currentTile;
+               }
+               draw(ctx) {
+                    drawRect(ctx, 48 * (this.x - 1), 48 * (this.y - 1), 48, 48, { fillStyle: "rgba(0.5,1,0,0.9)" })
+
+               }
+          }
+     
+
+     let mapWidth = 18;
+     let mapHeight = 15;
+     let elements = []
+     let x = 0;
+     let y = 0;
+     let battleX = 0;
+     let battleY = 0
+     let index = 0;
+     let path = []
+
+     let currentElement = null;
+     
+     let player = new Player(5,5)
+          
+   
+     document.querySelectorAll(".map-tile").forEach((userItem) => {
+          //userItem.innerHTML = x + " " + y//`${x,y}`
+          userItem.style.index = index
+          elements.push(new TileElement(userItem, x, y))
+          if(elements[userItem.style.index].isFlower === true){
+               userItem.style.zIndex = 21;
+          }
+
+          addLocalEventListener(userItem, "mouseover", function(){
+               userItem.style.animationName = "example"
+               //console.log(userItem.style.index, index)
+               currentElement = elements[userItem.style.index]
+
+          })
+          index+=1;
+          x += 1
+          if(x >= mapWidth){
+               x = 0;
+               y+=1
+
+          }
+     });
+          setInterval(function () {
+               if(currentElement){
+                    document.getElementById("tileCoordinates").innerHTML = currentElement.x + " " + currentElement.y//userItem.innerHTML
+                    document.getElementById("tileAttributes").innerHTML = currentElement.element
+                    if (currentElement.battle) {
+                         //currentElement.battle.style.visibility = "visible"
+                    }
+                    document.getElementById("stateText").innerHTML = currentElement.currentState               
+                    
+                    if(currentElement.state === "waiting"){
+                         document.getElementById("timerHeader").innerHTML = ""
+                         document.getElementById("timerText").innerHTML = ""
+                    }else if(currentElement.state === "growing"){
+                         document.getElementById("timerHeader").innerHTML = "Time Til Harvest"
+                         document.getElementById("timerText").innerHTML = currentElement.timeTilHarvest
+                    } else if (currentElement.state === "fullyGrown") {
+                         document.getElementById("timerHeader").innerHTML = "Time Til Rot"
+                         document.getElementById("timerText").innerHTML = currentElement.timeTilRot
+                    }else if(currentElement.state === "rotten"){
+                         document.getElementById("timerHeader").innerHTML = ""
+                         document.getElementById("timerText").innerHTML = ""
+                    }
+               }
+               for (let tile of elements) {
+                    if (tile.state === "waiting") {
+                         tile.style.backgroundColor = "brown"
+                    }else if(tile.state === "growing"){
+                         tile.style.backgroundColor = "green"
+                    } else if (tile.state === "fullyGrown") {
+                         tile.style.backgroundColor = "yellow"
+                    } else if (tile.state === "rotten") {
+                         tile.style.backgroundColor = "red"
+                    }
+               }
+               this.ctx.clearRect(0,0,900,900)
+               player.draw(this.ctx)
+          },100)
+
+
+     x = 0;
+     y = 0;
+     mapWidth = 6;
+
+     document.querySelectorAll(".battle-tile").forEach((userItem) => {
+          //if(x === 1){
+          userItem.style.visibility = "hidden"
+          //}
+         for(let tile of elements){
+               if (Math.ceil(tile.x / 3) === x + 1 && Math.ceil(tile.y / 3) === y + 1) {
+                    tile.battle = userItem
+               }
+         }
+         x+=1
+         if(x >= mapWidth){
+               x = 0;
+               y+=1
+         }
+     })
+
+     document.querySelectorAll(".map-tile").forEach((userItem) => {
+          addLocalEventListener(userItem, "click", function () {
+               let currentElement2 = elements[userItem.style.index]
+               if(currentElement2.isFlower){
+                    if(currentElement2.state === "waiting"){
+                         currentElement2.seedNeighbors()
+                    }else if(currentElement2.state === "fullyGrown"){
+                         console.log(player.currentTile, currentElement)
+                         path = new PathFind(elements, player.currentTile, currentElement)
+                         player.goal = currentElement2;
+                         console.log(path)
+                    }else if(currentElement2.state === "rotten"){
+                         currentElement2.clearNeighbors()
+                    }
+               }
+          })
+     })
+
+  
+
+     for (let tile of elements) {
+          tile.setNeighbors(elements)
+     }
+     //elements[25].obliterateNeighbors()
+     //elements[5].item.style.visibility = "hidden"
+
+     this.canvas = document.querySelector("canvas");
+     this.ctx = this.canvas.getContext("2d")
+
+
+     drawRect(this.ctx, 0, 0, 768, 768, {fillStyle: "rgba(1,1,1,0.15)" })
+     
+     player.currentTile = elements[0] 
+     let pathI = 0;
+     console.log(path)
+     setInterval(function(){
+          if(path[0]){
+               player.currentTile = path[0];
+               player.x = path[0].x;
+               player.y = path[0].y;
+               path.shift()
+               if(path.length === 0){
+                    if(player.goal.state === "fullyGrown"){
+                         player.goal.state = "waiting"
+                         for (let tile of player.goal.allNeighbors) {
+                              tile.state = "waiting"
+                              tile.style.backgroundColor = "brown"
+                         }
+                    }
+               }
+          }
+          for (let tile of elements) {
+               if(tile.state === "growing"){
+                    tile.timeTilHarvest-=1;
+                    if(tile.timeTilHarvest <= 0){
+                         tile.state = "fullyGrown"
+                    }
+               }else if(tile.state === "fullyGrown"){
+                    tile.timeTilRot -= 1;
+                    if (tile.timeTilRot === 0) { 
+                         tile.state = "rotten" 
+                    }
+               }
+          }
+     }, 1000);
+     
+
+</script>
+
+</html>

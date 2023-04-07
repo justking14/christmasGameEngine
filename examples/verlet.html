@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+     <canvas id="c"></canvas>
+          <script src="/examples/vector.js"></script>
+          <script src="/examples/Dot.js"></script>
+          <script src="/examples/Stick.js"></script>
+          <script src="/examples/Entity.js"></script>
+     <script>
+
+          let canvas = document.getElementById("c");
+          let ctx = canvas.getContext("2d");
+          let CANVAS_WIDTH = window.innerWidth - 5;
+          let CANVAS_HEIGHT = window.innerHeight - 205;
+          canvas.width = CANVAS_WIDTH;
+          canvas.height = CANVAS_HEIGHT;
+
+          let body = {
+               "head"      : {x: 225, y: 240, radius: 7, locked: true},
+               "bodyTop"   : {x: 225, y: 250 },
+               "bodyBottom": {x: 225, y: 290 },
+               "leftArm"      : {x: 200, y: 275, type: "a" },
+               "lowerLeftArm" : {x: 200, y: 250, type: "a" },
+               "rightArm"     : {x: 250, y: 275, type: "b" },
+               "lowerRightArm": {x: 250, y: 250, type: "b" },
+
+               "leftLeg"      : { x: 215, y: 325, type: "b" },
+               "lowerLeftLeg" : { x: 215, y: 350, type: "b" },
+               "rightLeg"     : { x: 235, y: 325, type: "a"  },
+               "lowerRightLeg": { x: 235, y: 350, type: "a"  },
+
+          }
+          let box = new Entity(body, "red");
+
+          box.addStick("head", "bodyTop");
+          box.addStick("bodyTop", "bodyBottom");
+          box.addStick("bodyTop", "leftArm");
+          box.addStick("bodyTop", "rightArm");
+          box.addStick("bodyBottom", "leftLeg");
+          box.addStick("bodyBottom", "rightLeg");
+               box.addStick("leftLeg", "lowerLeftLeg");
+               box.addStick("rightLeg", "lowerRightLeg");
+               box.addStick("leftArm", "lowerLeftArm");
+               box.addStick("rightArm", "lowerRightArm");
+
+                    
+          let box2 = new Entity(body, "red");
+          box2.addStick("head", "bodyTop");
+          box2.addStick("bodyTop", "bodyBottom");
+          box2.addStick("bodyTop", "leftArm");
+          box2.addStick("bodyTop", "rightArm");
+          box2.addStick("bodyBottom", "leftLeg");
+          box2.addStick("bodyBottom", "rightLeg");
+          box2.addStick("leftLeg", "lowerLeftLeg");
+          box2.addStick("rightLeg", "lowerRightLeg");
+          box2.addStick("leftArm", "lowerLeftArm");
+          box2.addStick("rightArm", "lowerRightArm");
+          box2.moveElements(60, -20)
+
+          let box3 = new Entity(body, "red");
+          box3.addStick("head", "bodyTop");
+          box3.addStick("bodyTop", "bodyBottom");
+          box3.addStick("bodyTop", "leftArm");
+          box3.addStick("bodyTop", "rightArm");
+          box3.addStick("bodyBottom", "leftLeg");
+          box3.addStick("bodyBottom", "rightLeg");
+          box3.addStick("leftLeg", "lowerLeftLeg");
+          box3.addStick("rightLeg", "lowerRightLeg");
+          box3.addStick("leftArm", "lowerLeftArm");
+          box3.addStick("rightArm", "lowerRightArm");
+          box3.moveElements(-60, -20)
+
+
+          let steps = []
+                    
+          for(var j = 0; j < 12; j++){
+               let step1 = new Entity({}, "gray");
+               for (let i = 0; i < 10; i++) {
+                    step1.addDot("step", 5 + (i * 50), (50 * j) - Math.random() * 2, "none", 3)
+                    if(i > 0){
+                         step1.addStickIndex(i-1, i)
+                    }
+               }
+               steps.push(step1)
+          }
+          let border = new Entity({}, "black");
+          for (let i = 0; i < 13; i++) {
+               border.addDot("step", 5, 5 + (50 * i), "none", 3)
+               if (i > 0) {
+                    border.addStickIndex(i - 1, i)
+               }
+          }
+          for (let i = 0; i < 13; i++) {
+               border.addDot("step", 455, 5 + (50 * i), "none", 3)
+               if (i > 0) {
+                    border.addStickIndex(i + 12, i + 13)
+               }
+          }
+          border.addStickIndex(0, 13)
+          border.addStickIndex(12,25)
+
+
+          let boulder = new Entity({}, "brown")
+
+          // Set the center and radius of the circle
+          const centerX = 225;
+          const centerY = 200;
+          let radius = 100;
+
+          // Calculate the coordinates of the vertices of the polygon
+          const vertices = [];
+          for (let i = 0; i < 14; i++) {
+               const angle = (i / 14) * 2 * Math.PI;
+               const x = centerX + radius * Math.cos(angle);
+               const y = centerY + radius * Math.sin(angle);
+               vertices.push({ x, y });
+          }
+
+          radius = 50
+                    for (let i = 0; i < 14; i++) {
+                              const angle = (i / 14) * 2 * Math.PI;
+                              const x = centerX + radius * Math.cos(angle);
+                              const y = centerY + radius * Math.sin(angle);
+                              vertices.push({ x, y });
+                         }
+               
+          for (let i = 0; i < 28; i++) {
+               boulder.addDot("boulder", vertices[i].x, vertices[i].y, "none", 7)
+               if (i > 0 && i !== 14) {
+                    boulder.addStickIndex(i - 1, i)
+               }
+               if(i >= 14){
+                    boulder.addStickIndex(i - 14, i)
+               }
+          }
+                         
+          boulder.addDot("boulder", centerX, centerY, "none", 7)
+          for (let i = 13; i < 27; i++) {
+               boulder.addStickIndex(28,i)
+          }
+                    
+          boulder.addStickIndex(27,14)
+          boulder.addStickIndex(13,0)
+
+
+          function step(){
+               stepsTaken+=1
+               if(stepsTaken > 25){
+                    stepsTaken+=1
+               }
+               if(stepsTaken > 100){
+                    stepsTaken+=1
+               }
+               box.animate({ type: "movement", amount: 15, })
+               box2.animate({type: "movement", amount: 15})
+               box3.animate({ type: "movement", amount: 15 })
+
+               boulder.animate({ type: "pulse" })
+               for (var j = 0; j < steps.length; j++) {
+                    steps[j].animate({type: "moveDown"})
+               }
+
+               setTimeout(() => {
+                    if (stepsTaken > 50) {
+                         step()
+                    }
+                    if (stepsTaken > 1000) {
+                         time = 100
+                    }
+                    if(stepsTaken > 10000){
+                         time = 50;
+                    }
+                    if(stepsTaken > 25000){
+                         time = 25
+                    }
+                    if(stepsTaken > 50000){
+                         time = 10;
+                    }
+                    if(stepsTaken > 100000){
+                         time = 5;
+                    }
+                    if(stepsTaken > 1000000){
+                         time = 1;
+                    }
+
+               }, time);
+          }
+               
+          document.addEventListener("click", e => { step()})
+
+          let time = 250
+   
+          let stepsTaken = 0;
+
+          //setInterval(swapInterval,500)
+          function animate() {
+               ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+               for(var j = 0; j < steps.length; j++){
+                    steps[j].update(ctx)
+               }
+               boulder.update(ctx)
+               box.update(ctx);
+               if(stepsTaken > 25){
+                    box2.update(ctx)
+               }
+               if(stepsTaken > 100){
+                    box3.update(ctx)
+               }
+               border.update(ctx)
+
+               ctx.font = "30px Arial";
+               ctx.fillText("Steps Taken: " + stepsTaken, 15,30 )
+           
+               requestAnimationFrame(animate);
+          }
+          animate();
+     </script>
+</head>
+<body>
+     
+</body>
+</html>

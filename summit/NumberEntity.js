@@ -7,24 +7,25 @@ class NumberEntity extends NewEntity{
           this.x = x;
           this.color = color;
           this.radius = 6
+          this.size = 5
 
           this.numbers = {
                0: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 20, y: 0, radius: 3 },
-                         "3": { x: 0, y: 40, radius: 3 },
-                         "4": { x: 20, y: 40, radius: 3 },
+                         "2": { x: 4, y: 0, radius: 3 },
+                         "3": { x: 0, y: 8, radius: 3 },
+                         "4": { x: 4, y: 8, radius: 3 },
                     },
                     sticks: [["1","2"],["1","3"],["1","4"],["3","4"], ["2","4"]]
                },
                1: {
                     dots: {
-                         "1": { x: 0, y: 40, radius: 3 },
-                         "2": { x: 10, y: 40, radius: 3 },
-                         "3": { x: 20, y: 40, radius: 3 },
-                         "4": { x: 10, y: 0, radius: 3 },
-                         "5": { x: 0, y: 20, radius: 3 },
+                         "1": { x: 0, y: 8, radius: 3 },
+                         "2": { x: 2, y: 8, radius: 3 },
+                         "3": { x: 4, y: 8, radius: 3 },
+                         "4": { x: 2, y: 0, radius: 3 },
+                         "5": { x: 0, y: 4, radius: 3 },
 
                     },
                     sticks: [["1","3"],["1","2"],["4","2"],["4","5"]]
@@ -32,11 +33,11 @@ class NumberEntity extends NewEntity{
                2: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 20, y: 0, radius: 3 },
-                         "3": { x: 20, y: 20, radius: 3 },
-                         "4": { x: 0, y: 20, radius: 3 },
-                         "5": { x: 0, y: 40, radius: 3 },
-                         "6": { x: 20, y: 40, radius: 3 },
+                         "2": { x: 4, y: 0, radius: 3 },
+                         "3": { x: 4, y: 4, radius: 3 },
+                         "4": { x: 0, y: 4, radius: 3 },
+                         "5": { x: 0, y: 8, radius: 3 },
+                         "6": { x: 4, y: 8, radius: 3 },
 
                     },
                     sticks: [["1","2"],["2","3"],["3","4"],["4","5"], ["5","6"]]
@@ -44,11 +45,11 @@ class NumberEntity extends NewEntity{
                3: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 20, y: 0, radius: 3 },
-                         "3": { x: 20, y: 20, radius: 3 },
-                         "4": { x: 0, y: 20, radius: 3 },
-                         "5": { x:  0, y: 40, radius: 3 },
-                         "6": { x: 20, y: 40, radius: 3 },
+                         "2": { x: 4, y: 0, radius: 3 },
+                         "3": { x: 4, y: 4, radius: 3 },
+                         "4": { x: 0, y: 4, radius: 3 },
+                         "5": { x:  0, y: 8, radius: 3 },
+                         "6": { x: 4, y: 8, radius: 3 },
 
                     },
                     sticks: [["1","2"],["2","3"],["3","4"],["3","6"], ["5","6"]]
@@ -57,10 +58,10 @@ class NumberEntity extends NewEntity{
                4: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 0, y: 20, radius: 3 },
-                         "3": { x: 20, y: 20, radius: 3 },
-                         "4": { x: 20, y: 0, radius: 3 },
-                         "5": { x: 20, y: 40, radius: 3 },
+                         "2": { x: 0, y: 4, radius: 3 },
+                         "3": { x: 4, y: 4, radius: 3 },
+                         "4": { x: 4, y: 0, radius: 3 },
+                         "5": { x: 4, y: 8, radius: 3 },
 
                     },
                     sticks: [["1","2"],["2","3"],["3","4"],["4","5"]]
@@ -69,11 +70,11 @@ class NumberEntity extends NewEntity{
                5: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 20, y: 0, radius: 3 },
-                         "3": { x: 20, y: 20, radius: 3 },
-                         "4": { x: 0, y: 20, radius: 3 },
-                         "5": { x: 0, y: 40, radius: 3 },
-                         "6": { x: 20, y: 40, radius: 3 },
+                         "2": { x: 4, y: 0, radius: 3 },
+                         "3": { x: 4, y: 4, radius: 3 },
+                         "4": { x: 0, y: 4, radius: 3 },
+                         "5": { x: 0, y: 8, radius: 3 },
+                         "6": { x: 4, y: 8, radius: 3 },
 
                     },
                     sticks: [["1","2"],["1","4"],["3","4"],["3","6"], ["5","6"]]
@@ -82,11 +83,11 @@ class NumberEntity extends NewEntity{
                6: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 20, y: 0, radius: 3 },
-                         "3": { x: 20, y: 20, radius: 3 },
-                         "4": { x: 0, y: 20, radius: 3 },
-                         "5": { x: 0, y: 40, radius: 3 },
-                         "6": { x: 20, y: 40, radius: 3 },
+                         "2": { x: 4, y: 0, radius: 3 },
+                         "3": { x: 4, y: 4, radius: 3 },
+                         "4": { x: 0, y: 4, radius: 3 },
+                         "5": { x: 0, y: 8, radius: 3 },
+                         "6": { x: 4, y: 8, radius: 3 },
 
                     },
                     sticks: [["1","2"],["1","4"],["3","4"],["3","6"], ["4","5"],["5","6"]]
@@ -95,8 +96,8 @@ class NumberEntity extends NewEntity{
                7: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 20, y: 0, radius: 3 },
-                         "3": { x: 0, y: 40, radius: 3 },
+                         "2": { x: 4, y: 0, radius: 3 },
+                         "3": { x: 0, y: 8, radius: 3 },
 
                     },
                     sticks: [["1","2"],["2","3"]]
@@ -105,11 +106,11 @@ class NumberEntity extends NewEntity{
                8: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 20, y: 0, radius: 3 },
-                         "3": { x: 20, y: 20, radius: 3 },
-                         "4": { x: 0, y: 20, radius: 3 },
-                         "5": { x: 0, y: 40, radius: 3 },
-                         "6": { x: 20, y: 40, radius: 3 },
+                         "2": { x: 4, y: 0, radius: 3 },
+                         "3": { x: 4, y: 4, radius: 3 },
+                         "4": { x: 0, y: 4, radius: 3 },
+                         "5": { x: 0, y: 8, radius: 3 },
+                         "6": { x: 4, y: 8, radius: 3 },
 
                     },
                     sticks: [["1","2"],["1","4"],["3","4"],["3","6"], ["4","5"],["5","6"], ["2","3"]]
@@ -118,11 +119,11 @@ class NumberEntity extends NewEntity{
                9: {
                     dots: {
                          "1": { x: 0, y: 0, radius: 3 },
-                         "2": { x: 20, y: 0, radius: 3 },
-                         "3": { x: 20, y: 20, radius: 3 },
-                         "4": { x: 0, y: 20, radius: 3 },
-                         "5": { x: 0, y: 40, radius: 3 },
-                         "6": { x: 20, y: 40, radius: 3 },
+                         "2": { x: 4, y: 0, radius: 3 },
+                         "3": { x: 4, y: 4, radius: 3 },
+                         "4": { x: 0, y: 4, radius: 3 },
+                         "5": { x: 0, y: 8, radius: 3 },
+                         "6": { x: 4, y: 8, radius: 3 },
 
                     },
                     sticks: [["1","2"],["1","4"],["3","4"],["3","6"],["5","6"], ["2","3"]]
@@ -168,12 +169,12 @@ class NumberEntity extends NewEntity{
                     let newNumbers = this.numbers[i]
                     for (const property in newNumbers.dots) {
                          let obj = newNumbers.dots[property]
-                         num.addDot(property, obj.x, obj.y, obj.type || "none", obj.radius || this.radius, obj.locked || false)
+                         num.addDot(property, obj.x * this.size, obj.y * this.size, obj.type || "none", obj.radius || this.radius, obj.locked || false)
                     }
                     for (const property in newNumbers.sticks) {
                          num.addStick(newNumbers.sticks[property][0], newNumbers.sticks[property][1])
                     }
-                    num.moveElements(this.x + count * 30, this.y)
+                    num.moveElements(this.x + count * (6 * this.size), this.y)
 
                     for (let i = 0; i < num.dots.length; i++) {
                          num.dots[i].resetPos = new Vector(num.dots[i].startPos.x, num.dots[i].startPos.y);

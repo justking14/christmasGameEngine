@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+     <style>
+          /* Define the grid styles */
+          .grid {
+               display: grid;
+               grid-template-columns: repeat(14, 40px);
+               /* Adjust tile size as needed */
+               grid-template-rows: repeat(14, 40px);
+               /* Adjust tile size as needed */
+               gap: 2px;
+               /* Adjust gap between tiles as needed */
+          }
+
+          /* Define the tile styles */
+          .tile {
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               font-size: 18px;
+               /* Adjust font size as needed */
+               font-weight: bold;
+               background-color: green;
+               /* Set tile background color to green */
+          }
+
+          /* Define outer square tile styles */
+          .square {
+               content: "";
+               width: 100%;
+               height: 100%;
+               background-color: black;
+          }
+
+          /* Define inner period tile styles */
+          .period {
+               content: ".";
+          }
+     </style>
+</head>
+
+<body>
+     <div class="grid" id="grid"></div>
+
+     <script>
+          // Define the Tile class
+          class Tile {
+               constructor(value, color) {
+                    this.value = value;
+                    this.color = color;
+                    this.previousValue = '';
+               }
+          }
+
+          // Define the grid size
+          const gridSize = 14;
+
+          // Create a 2D array to represent the grid
+          const grid = [];
+          for (let i = 0; i < gridSize; i++) {
+               const row = [];
+               for (let j = 0; j < gridSize; j++) {
+                    // Check if tile is in outer square
+                    const isSquare = i < 2 || i >= gridSize - 2 || j < 2 || j >= gridSize - 2;
+
+                    // Assign the value, color, and content to each tile
+                    const value = isSquare ? '' : '.';
+                    const color = 'green';
+                    const content = isSquare ? 'square' : 'period';
+
+                    row.push(new Tile(value, color, content));
+               }
+               grid.push(row);
+          }
+
+          // Get the grid element from the DOM
+          const gridElement = document.getElementById('grid');
+
+          // Render the grid in the DOM
+          for (let i = 0; i < gridSize; i++) {
+               for (let j = 0; j < gridSize; j++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.textContent = grid[i][j].value;
+                    gridElement.appendChild(tile);
+               }
+          }
+     </script>
+</body>
+
+</html>

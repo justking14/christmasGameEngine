@@ -10,7 +10,6 @@ class Dot {
 
           this.resetPos = new Vector(x,y)
 
-
           this.friction = 0.25;
           this.groundFriction = 0.7;
 
@@ -22,7 +21,6 @@ class Dot {
           this.gravityBool = false;
           this.gravityBool2 = false;
           this.gravityBool3 = false;
-
 
           this.radius = radius;
           this.color = "#e62a4f";
@@ -50,25 +48,22 @@ class Dot {
           this.pos.add(vel);
           */
           
-          this.vel.mult(this.friction)
-          this.vel.add(this.gravity)
-          //this.pos.add(this.vel)
-          
-          if (this.gravityBool3 === true) {
-               let vel = Vector.sub(this.resetPos, this.pos);
-               vel.mult(this.airFriction);
-               this.pos.add(vel);
+          if (this.gravityBool === true) {
+               //fall down 
+               this.vel.mult(this.friction)
+               this.vel.add(this.gravity)
+               this.pos.add(this.vel);
           }else if (this.gravityBool2 === true) {
+               //move to center
                let vel = Vector.sub(this.center, this.pos);
                vel.mult(this.airFriction);
                this.pos.add(vel);
-
-          } else if (this.gravityBool === true) {
-               //console.log(this.pos)
-               //if (this.pos.x >= 0 && this.pos.x <= 910) {
-                    this.pos.add(this.vel);
-               //}
-          }
+          }else if (this.gravityBool3 === true) {
+               //return to original positions
+               let vel = Vector.sub(this.resetPos, this.pos);
+               vel.mult(this.airFriction);
+               this.pos.add(vel);
+          } 
           
      }
 

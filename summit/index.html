@@ -267,9 +267,16 @@
           step()
           function beatHit(speedIncrement, color){
                speed += speedIncrement
+                              
+               for (let ent of speedTextShadows) { 
+                    //ent.render(ctx, speed) 
+                    ent.size = speed
+               }
+
                if(speed < 1){speed = 1}
                meter.setColor(color)
                clearInterval(meter.colorInterval)
+                 
                meter.colorInterval = setTimeout(() => {meter.setColor("blue")}, 2500)
           }
           document.addEventListener("click", e => { 
@@ -351,7 +358,11 @@
                     }
                }
 
-               for (let ent of textsArray) {ent.render(ctx, "SPEED: ")}
+               
+               for (let ent of textsArray) {
+                    //ent.size = newNum
+                    ent.render(ctx, "SPEED: ")
+               }
                for (let ent of speedTextShadows) {ent.render(ctx, speed)}
 
                meter.update(ctx)

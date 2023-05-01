@@ -28,8 +28,15 @@
                     <p>Due to a small rat apocalypse, packages aren't being delivered on time.</p>
                     <p>Find employees, level them up, and send them off on deliveries to save the world...</p>
                     <p>Or at least make some quick cash</p>
-                    <p id="availableEmployees">Employees: </p>
+                    <p id="employees">Employees: </p>
+                    <p id="availableEmployees">Available Employees: </p>
+
                     <p id="cash">Cash On Hand: $0</p>
+
+               
+                    <button id="sendEmployee" class="tablinks" onclick="sendEmployee(event)">Send Employee</button>
+                    <button id="automateEmployees" class="tablinks" onclick="automateEmployees(event)">Automate Employees! Cost: $1000</button>
+
 
                </div>
                
@@ -288,6 +295,10 @@
           color: #ffffff;
           font-size: x-large;
           }
+          .tabcontent p{
+               gap: 0px;
+               margin: 5px;
+          }
      </style>
 </head>
 
@@ -320,12 +331,50 @@
      const container = document.querySelector('.game-map');
      document.getElementById("Info").style.display = "block";
 
+     function sendEmployee(event){
+          for (var i = 0; i < 9; i++) {
+               if(players[i].awaitingOrders === true && players[i].level > 0){
+                    players[i].awaitingOrders = false;
+                    players[i].sendOut()
+                    return
+               }
+          }
+          log.push("Nobody To Send.  Hire an employee or Wait for someone to return from their delivery")
+
+     }
+
+     let gameAutomated = false;
+     function automateEmployees(event){
+          if(cash >= 1000){
+               cash-=1000
+               gameAutomated = true;
+               document.getElementById("sendEmployee").style.display = "none"
+               document.getElementById("automateEmployees").style.display = "none"
+               for (var i = 0; i < 9; i++) {
+                    if(players[i].level > 0 && players[i].awaitingOrders === true){
+                                                                      
+                         players[i].awaitingOrders = false
+                         players[i].sendOut()
+                    }
+
+               }
+          } else {
+               log.push("Insufficient Cash")
+          }
+     }
+
      function levelUpEmployee(evt, employeeID){
           let player = players[employeeID - 1]
           let cost = player.nextCost()
           if(cost <= cash){
-               cost-=cash
+               cash-=cost
                player.level++
+               if(player.level === 1){
+                    if (gameAutomated === true) {
+                         player.awaitingOrders = false
+                         player.sendOut()
+                    }
+               }
                log.push("Employee " + player.name + " reached level " + player.level)
                id = "E1Button"
                document.getElementById("E" + employeeID + "Button").innerHTML = "Level Up" 
@@ -427,7 +476,6 @@
                const originalValue = Math.random();
                const div = document.createElement('div');
                div.className = 'grid-item';
-               console.log(i,j)
                div.innerText = gameMap[i][j];
 
                tiles.push(new Tile(i,j,gameMap[i][j],div))
@@ -505,7 +553,8 @@
                constructor(i,ll, nl) {
                     this.lastLocation = ll;
                     this.nextLocation = nl;
-                    this.path = new PathFind(this.lastLocation, this.nextLocation)
+                    this.path //= new PathFind(this.lastLocation, this.nextLocation)
+                
                     this.goingOut = true;
                     this.moving = true;
                     this.lastTile = null;
@@ -518,51 +567,67 @@
                     this.color = "#"+ Math.floor(Math.random() * 16777215).toString(16)
 
                     this.audio = new Audio('pickupCoin.wav');
+                    this.awaitingOrders = true;
+                        
+                    
                }
 
                nextCost(){
                     return (this.level * 10 * this.id) + (this.id*this.id*this.id)
                }
 
+               sendOut(){
+                    this.goingOut = true
+                    this.stepCount = 0;
+                    log.push("Employee " + this.name + " restocked at base and is heading off on their next delivery")
+                    let item1 = letters[Math.floor(Math.random() * letters.length)];
+
+                    while (this.lastLocation === getTile(item1)) {
+                         item1 = letters[Math.floor(Math.random() * letters.length)];
+                    }
+                    this.lastLocation = getTile("A")
+                    this.nextLocation = getTile(item1)
+
+                    this.path = new PathFind(this.lastLocation, this.nextLocation)
+                    console.log(this.path)
+               }
+
                step() {
                     this.counter--
-                    if(this.counter <= 0){
+                    if(this.counter > 0){return}
+                    if(this.awaitingOrders === false || gameAutomated === true){
                          this.counter = 20 - this.level
-                         if (this.moving === true) {
-                              this.path.shift()
-                              this.stepCount++;
-                              if (this.path.length === 0) {
-                                   if(this.goingOut === true){
-                                        this.goingOut = false;
-                                                  
-                                        this.audio.play();
+                         this.path.shift()
+                         this.stepCount++;
+                         if (this.path.length === 0) {
+                              if(this.goingOut === true){
+                                   this.goingOut = false;
+                                             
+                                   this.audio.play();
 
-                                        log.push("Employee " + this.name + " reached the " + locations[this.nextLocation.originalValue] + " and earned $" + this.stepCount) 
+                                   this.stepCount = this.stepCount * 2;
 
-                                        cash+=this.stepCount
-                                        this.stepCount = 0
-                                        this.lastLocation = this.nextLocation
-                                        this.nextLocation = getTile("A")
-                                   }else{
-                                        this.goingOut = true
-                                        this.stepCount = 0;
-                                        log.push("Employee " + this.name + " restocked at base and is heading off on their next delivery")
-                                        let item1 = letters[Math.floor(Math.random() * letters.length)];
+                                   log.push("Employee " + this.name + " reached the " + locations[this.nextLocation.originalValue] + " and earned $" + this.stepCount) 
 
-                                        while (this.lastLocation === getTile(item1)) {
-                                             item1 = letters[Math.floor(Math.random() * letters.length)];
-                                        }
-                                        this.lastLocation = this.nextLocation
-                                        this.nextLocation = getTile(item1)
-                                   }
+                                   cash+=this.stepCount
+                                   this.stepCount = 0
+                                   this.lastLocation = this.nextLocation
+                                   this.nextLocation = getTile("A")
 
                                    this.path = new PathFind(this.lastLocation, this.nextLocation)
                                    return true
+                              }else{
+                                   if(gameAutomated === false){
+                                        this.awaitingOrders = true;
+                                   }else{
+                                        this.sendOut() 
+                                   }
                               }
                          }
                     }
-               }
+               
           }
+     }
 
      let cash = 100;
      let players = []
@@ -595,16 +660,25 @@
           document.getElementById("cash").innerHTML = "Cash On Hand: $" + cash
           
           let employees = ""
+          let availableEmployees = ""
           for (var i = 0; i < 9; i++) {
                if(players[i].level > 0){
-                    if(i === 0){
+                    if(employees === ""){
                          employees += " " + players[i].name
                     }else{
                          employees+=", " + players[i].name
                     }
+                    if(players[i].awaitingOrders === true){
+                         if (availableEmployees === "") {
+                              availableEmployees += " " + players[i].name
+                         } else {
+                              availableEmployees += ", " + players[i].name
+                         }
+                    }
                }
           }
-          document.getElementById("availableEmployees").innerHTML = "Employees: " + employees
+          document.getElementById("employees").innerHTML = "Employees: " + employees
+          document.getElementById("availableEmployees").innerHTML = "Available Employees: " + availableEmployees
 
 
           for (var i = 0; i < 9; i++) {
@@ -628,20 +702,21 @@
 
           for(player of players){
 
-               if(player.level !== 0){
+               if(player.level !== 0 && player.awaitingOrders === false){
                     player.step()
-
-                    let x = player.path[0].x//Math.floor(Math.random()*20)
-                    let y = player.path[0].y//Math.floor(Math.random()*20)
-                    let tmpTile = null;
-                    for(i of tiles){
-                         if(i.x === x && i.y === y){
-                              if(player.lastTile !== null){
-                                   player.lastTile.resetValue()
+                    if(player.path !== undefined && player.path.length !== 0){
+                         let x = player.path[0].x//Math.floor(Math.random()*20)
+                         let y = player.path[0].y//Math.floor(Math.random()*20)
+                         let tmpTile = null;
+                         for(i of tiles){
+                              if(i.x === x && i.y === y){
+                                   if(player.lastTile !== null){
+                                        player.lastTile.resetValue()
+                                   }
+                                   player.lastTile = i;
+                                   i.setValue(player.id)
+                                   i.div.style.color = player.color
                               }
-                              player.lastTile = i;
-                              i.setValue(player.id)
-                              i.div.style.color = player.color
                          }
                     }
                }
